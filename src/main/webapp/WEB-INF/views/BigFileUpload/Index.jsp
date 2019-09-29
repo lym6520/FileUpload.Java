@@ -3,7 +3,7 @@
 
 <html>
 <head>
-    <title>大文件上传</title>
+    <title>大文件上传-支持端点续传</title>
     <!--支持IE9+ chrome fireFox-->
     <script src="/assets/jquery-2.1.4.min.js"></script>
     <link href="/assets/webuploader.css" rel="stylesheet" />
@@ -12,6 +12,67 @@
     <script src="/assets/bootstrap.min.js"></script>
     <script type="text/javascript">
         $(function () {
+            var fileMd5, fileName;
+            //监听分块上传过程中的三个时间点
+            WebUploader.Uploader.register({
+                "before-send-file":"beforeSendFile",
+                "before-send":"beforeSend",
+                "after-send-file":"afterSendFile",
+            },{
+                //时间点1：所有分块进行上传之前调用此函数
+                beforeSendFile:function(file){
+                    var deferred = WebUploader.Deferred();
+                    //获取文件信息后进入下一步
+                    deferred.resolve();
+                    //停止后续触发事件
+                    //return deferred.promise();
+
+                },
+                //时间点2：如果有分块上传，则每个分块上传之前调用此函数
+                beforeSend:function(block){
+                    var deferred = WebUploader.Deferred();
+
+                    /*分片内容上传的时候检查分片文件是否上传
+                    * */
+                    $.ajax({
+                        type:"POST",
+                        url:"/BigFileUpload/checkChunk",
+                        data:{
+                            //文件唯一标记
+                            fileMd5:fileMd5,
+                            fileName:fileName,
+                            //当前分块下标
+                            chunk:block.chunk,
+                            //当前分块大小
+                            chunkSize:block.end-block.start
+                        },
+                        dataType:"json",
+                        success:function(response){
+                            if(response.ifExist){
+                                //分块存在，跳过
+                                deferred.reject();
+                            }else{
+                                //分块不存在或不完整，重新发送该分块内容
+                                deferred.resolve();
+                            }
+                        }
+                    });
+
+
+
+                    this.owner.options.formData.fileMd5 = fileMd5;
+                    deferred.resolve();
+                    return deferred.promise();
+                },
+                //时间点3：所有分块上传成功后调用此函数
+                afterSendFile:function(){
+                   alert("afterSendFile");
+                }
+            });
+
+
+
+
             $list = $('#fileList');
             var uploader = WebUploader.create({
 
@@ -69,10 +130,14 @@
                 uploader.options.formData.guid = WebUploader.guid();//每个文件都附带一个guid，以在服务端确定哪些文件块本来是一个
 
                 uploader.md5File(file)
-                        .then(function (fileMd5) { // 完成
+                        .then(function (strMd5) { // 完成
                             //var end = +new Date();
                             // console.log("before-send-file  preupload: file.size="+file.size+" file.md5="+fileMd5);
                             //insertLog("<br>" + moment().format("YYYY-MM-DD HH:mm:ss") + " before-send-file  preupload:计算文件(" + file.name + ")MD5完成. 耗时  " + (end - start) + '毫秒  fileMd5: ' + fileMd5);
+                            fileMd5 = strMd5;
+                            fileName = file.name;
+                            uploader.options.formData.guid = fileMd5;
+
                             file.wholeMd5 = fileMd5;//获取到了md5
                             uploader.options.formData.md5value = file.wholeMd5;//每个文件都附带一个md5，便于实现秒传
 
@@ -85,8 +150,7 @@
                                 url: "/BigFileUpload/IsMD5Exist",//baseUrl +
                                 data: {
                                     fileMd5: fileMd5,
-                                    fileName: file.name,
-                                    fileID: file.id,
+                                    fileName: fileName
                                     //isShared: $("#isShared").val()
                                 },
                                 success: function (result) {

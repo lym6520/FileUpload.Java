@@ -79,12 +79,13 @@ public class SaveFile {
      * @return
      */
     public static String getRealPath() {
-        String realPath;
-        String path = FileUploadController.class.getResource("/").getFile();
-        int index = path.indexOf("build");
-        realPath = path.substring(0, index) + "/src/main/webapp/upload/";
-        realPath = realPath.replaceFirst("/", "");
-        return realPath;
+//        String realPath;
+//        String path = FileUploadController.class.getResource("/").getFile();
+//        int index = path.indexOf("build");
+//        realPath = path.substring(0, index) + "/src/main/webapp/upload/";
+//        realPath = realPath.replaceFirst("/", "");
+//        return realPath;
+            return "/Users/linyuanmai/Downloads/FileUpload.Java-master/file/";
     }
 
 

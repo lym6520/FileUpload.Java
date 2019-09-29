@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+
 import static com.zhangzhihao.FileUpload.Java.Utils.IsAllUploaded.Uploaded;
 
 @Controller
@@ -44,6 +46,24 @@ public class BigFileUploadController extends SaveFile {
         }
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/checkChunk", method = RequestMethod.POST)
+    public String checkChunk(String fileMd5, String chunk, int chunkSize, String fileName) {
+        String uploadFolderPath = getRealPath();
+        String ext = fileName.substring(fileName.lastIndexOf("."));
+        File checkFile = new File(uploadFolderPath+"/"+fileMd5+"/"+chunk + ".zip");
+
+        //检查文件是否存在，且大小是否一致
+        if(checkFile.exists() && checkFile.length()==chunkSize){
+            //上传过
+            return "{\"ifExist\":1}";
+        }else{
+            //没有上传过
+            return "{\"ifExist\":0}";
+        }
+
+    }
+
     /**
      * @param guid             临时文件名
      * @param md5value         客户端生成md5值
@@ -76,6 +96,9 @@ public class BigFileUploadController extends SaveFile {
 
             String mergePath =uploadFolderPath + guid + "/";
             String ext = name.substring(name.lastIndexOf("."));
+
+            //todo
+            guid = md5value;
 
             //判断文件是否分块
             if (chunks != null && chunk != null) {
