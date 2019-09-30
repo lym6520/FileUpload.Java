@@ -65,7 +65,7 @@ public class BigFileUploadController extends SaveFile {
     }
 
     /**
-     * @param guid             临时文件名
+     * @param guid             临时文件名 todo = 客户端生成md5值
      * @param md5value         客户端生成md5值
      * @param chunks           分块数
      * @param chunk            分块序号
@@ -96,9 +96,6 @@ public class BigFileUploadController extends SaveFile {
 
             String mergePath =uploadFolderPath + guid + "/";
             String ext = name.substring(name.lastIndexOf("."));
-
-            //todo
-            guid = md5value;
 
             //判断文件是否分块
             if (chunks != null && chunk != null) {

@@ -13,7 +13,7 @@
     <script type="text/javascript">
         $(function () {
             var fileMd5, fileName;
-            //监听分块上传过程中的三个时间点
+            //通过 监听分块上传过程中的三个时间点 来支持端点续传
             WebUploader.Uploader.register({
                 "before-send-file":"beforeSendFile",
                 "before-send":"beforeSend",
@@ -66,7 +66,7 @@
                 },
                 //时间点3：所有分块上传成功后调用此函数
                 afterSendFile:function(){
-                   alert("afterSendFile");
+                   //alert("afterSendFile");
                 }
             });
 
