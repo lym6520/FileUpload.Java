@@ -51,7 +51,7 @@ public class BigFileUploadController extends SaveFile {
     public String checkChunk(String fileMd5, String chunk, int chunkSize, String fileName) {
         String uploadFolderPath = getRealPath();
         String ext = fileName.substring(fileName.lastIndexOf("."));
-        File checkFile = new File(uploadFolderPath+"/"+fileMd5+"/"+chunk + ".zip");
+        File checkFile = new File(uploadFolderPath+"/"+fileMd5+"/"+chunk + ext);
 
         //检查文件是否存在，且大小是否一致
         if(checkFile.exists() && checkFile.length()==chunkSize){

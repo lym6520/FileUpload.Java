@@ -79,13 +79,20 @@ public class SaveFile {
      * @return
      */
     public static String getRealPath() {
-//        String realPath;
-//        String path = FileUploadController.class.getResource("/").getFile();
-//        int index = path.indexOf("build");
-//        realPath = path.substring(0, index) + "/src/main/webapp/upload/";
-//        realPath = realPath.replaceFirst("/", "");
-//        return realPath;
-            return "/Users/linyuanmai/Downloads/FileUpload.Java-master/file/";
+        String realPath;
+        String path = FileUploadController.class.getResource("/").getFile();
+        int index = path.indexOf("build");
+        realPath = path.substring(0, index) + "build/upload/";
+        //realPath = realPath.replaceFirst("/", "");
+        File f = new File(realPath);
+        if(!f.exists()){
+            if(!f.mkdir()){
+                throw new RuntimeException("保存文件的父文件夹创建失败！路径为：" + f.getAbsolutePath());
+            }
+        }
+
+        return realPath;
+//            return "/Users/linyuanmai/Downloads/FileUpload.Java-master/file/";
     }
 
 
